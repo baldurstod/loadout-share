@@ -5,8 +5,9 @@ import (
 	"net/http"
 )
 
-func writeJSON(w *http.ResponseWriter, datas *map[string]interface{}) {
+func writeJSON(w *http.ResponseWriter, r *http.Request, datas *map[string]interface{}) {
 	(*w).Header().Add("Content-Type", "application/json")
+	(*w).Header().Add("Access-Control-Allow-Origin", "*")
 
 	if datas != nil {
 		j, err := json.Marshal(datas)
@@ -17,18 +18,18 @@ func writeJSON(w *http.ResponseWriter, datas *map[string]interface{}) {
 	}
 }
 
-func jsonError(w http.ResponseWriter, e error) {
+func jsonError(w http.ResponseWriter, r *http.Request, e error) {
 	failure := map[string]interface{}{
 		"success": false,
 		"error":   e.Error(),
 	}
-	writeJSON(&w, &failure)
+	writeJSON(&w, r, &failure)
 }
 
-func jsonSuccess(w http.ResponseWriter, data map[string]interface{}) {
+func jsonSuccess(w http.ResponseWriter, r *http.Request, data interface{}) {
 	failure := map[string]interface{}{
 		"success": true,
 		"result":  data,
 	}
-	writeJSON(&w, &failure)
+	writeJSON(&w, r, &failure)
 }
