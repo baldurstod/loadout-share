@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -37,13 +38,13 @@ func (h *Handler) serveGet(w http.ResponseWriter, r *http.Request) {
 
 		matched, err := regexp.Match(`^[a-zA-Z0-9]+$`, []byte(id))
 		if err != nil || !matched {
-			jsonError(w, errors.New("Invalid id"))
+			jsonError(w, r, errors.New("Invalid id"))
 			return
 		}
 
 		loadout, err = getOldLoadout(id)
 		if err != nil {
-			jsonError(w, errors.New("Loadout not found"))
+			jsonError(w, r, errors.New("Loadout not found"))
 			return
 		}
 
@@ -52,22 +53,38 @@ func (h *Handler) serveGet(w http.ResponseWriter, r *http.Request) {
 
 		matched, err := regexp.Match(`^[a-f0-9]+$`, []byte(id))
 		if err != nil || !matched {
-			jsonError(w, errors.New("Invalid id"))
+			jsonError(w, r, errors.New("Invalid id"))
 			return
 		}
 
 		loadout, err = getLoadout(id)
 		if err != nil {
-			jsonError(w, errors.New("Loadout not found"))
+			jsonError(w, r, errors.New("Loadout not found"))
 			return
 		}
 
 	} else {
-		jsonError(w, errors.New("Invalid id"))
+		jsonError(w, r, errors.New("Invalid id"))
+		return
 	}
 
-	jsonSuccess(w, loadout)
+	jsonSuccess(w, r, loadout)
 }
 
 func (h *Handler) servePost(w http.ResponseWriter, r *http.Request) {
+	var body = make(map[string]interface{})
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		jsonError(w, r, errors.New("Bad request"))
+		return
+	}
+
+	loadoutID, err := addLoadout(body)
+	if err != nil {
+		log.Println(err)
+		jsonError(w, r, errors.New("Error while creating loadout"))
+		return
+	}
+
+	jsonSuccess(w, r, loadoutID)
 }
