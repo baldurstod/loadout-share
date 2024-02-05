@@ -1,3 +1,4 @@
 *.exe
 var/
 config.json
+loadout-share
