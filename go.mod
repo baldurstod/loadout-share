@@ -2,10 +2,7 @@ module loadout-share
 
 go 1.19
 
-require (
-	github.com/gorilla/mux v1.8.1
-	go.mongodb.org/mongo-driver v1.13.1
-)
+require go.mongodb.org/mongo-driver v1.13.1
 
 require (
 	github.com/golang/snappy v0.0.1 // indirect
